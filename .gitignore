@@ -45,6 +45,12 @@ Thumbs.db
 # Jupyter Notebook files
 .ipynb_checkpoints
 
+#Terraform
+*/*/*.tfstate
+*/*/*.tfstate*
+*/*/.terraform
+*/*/.terraform*
+
 # Docker-related files (if not needed for the build context, or for CI/CD)
 # If you plan to commit your Dockerfile and docker-compose.yml, remove them from this list.
 # Dockerfile
