@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+wheels/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.venv/
+.virtual_documents/
+
+# Development artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Environment variables and secrets
+# IMPORTANT: Never commit actual secret files or environment variables!
+.env
+.flaskenv
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook files
+.ipynb_checkpoints
+
+# Docker-related files (if not needed for the build context, or for CI/CD)
+# If you plan to commit your Dockerfile and docker-compose.yml, remove them from this list.
+# Dockerfile
+# docker-compose.yml
