@@ -1,5 +1,6 @@
 import pendulum
 from airflow.sdk import dag, task
+from pokeapi import Poke
 
 
 @task.bash
