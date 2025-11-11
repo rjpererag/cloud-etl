@@ -10,12 +10,39 @@ class S3Connection:
         self.settings = settings
         self.client = boto3.client('s3')
 
+    def read_from_processed_bucket(self) -> dict | list[dict]:
+        try:
+            response = self.client.get_object(
+                Bucket=self.settings.processed_bucket, Key=self.settings.processed_key
+            )
+            print(response)
+            s3_data_bytes = response['Body'].read()
+            s3_data_string = s3_data_bytes.decode('utf-8')
+            print("----------------------------------------------------------------------")
+            print(s3_data_string)
+            print("----------------------------------------------------------------------")
+            raw_data = json.loads(s3_data_string)
+            raw_data["data"] = json.loads(raw_data["data"])
+            print(f"Successfully read {len(raw_data)} bytes of raw data.")
+            return raw_data
+
+        except Exception as e:
+            print(f"Failed to read from S3: {e}")
+            exit(1)
+
     def read_from_raw_bucket(self) -> dict | list[dict]:
         try:
             response = self.client.get_object(
                 Bucket=self.settings.raw_bucket, Key=self.settings.raw_key
             )
-            raw_data = json.loads(response['Body'].read())
+            print(response)
+            s3_data_bytes = response['Body'].read()
+            s3_data_string = s3_data_bytes.decode('utf-8')
+            print("----------------------------------------------------------------------")
+            print(s3_data_string)
+            print("----------------------------------------------------------------------")
+            raw_data = json.loads(s3_data_string)
+            raw_data["data"] = json.loads(raw_data["data"])
             print(f"Successfully read {len(raw_data)} bytes of raw data.")
             return raw_data
 
