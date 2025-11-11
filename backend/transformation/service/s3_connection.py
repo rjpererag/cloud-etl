@@ -1,0 +1,37 @@
+# backend/transformation/main.py (Inside the container)
+
+from .settings import S3Settings
+import boto3
+import json
+
+class S3Connection:
+
+    def __init__(self, settings: S3Settings = S3Settings()):
+        self.settings = settings
+        self.client = boto3.client('s3')
+
+    def read_from_raw_bucket(self) -> dict | list[dict]:
+        try:
+            response = self.client.get_object(
+                Bucket=self.settings.raw_bucket, Key=self.settings.raw_key
+            )
+            raw_data = json.loads(response['Body'].read())
+            print(f"Successfully read {len(raw_data)} bytes of raw data.")
+            return raw_data
+
+        except Exception as e:
+            print(f"Failed to read from S3: {e}")
+            exit(1)
+
+    def write_to_processed_bucket(self, data):
+        processed_key = self.settings.raw_bucket.replace(
+            self.settings.raw_bucket, self.settings.processed_bucket).replace(
+            '.json', '.parquet')
+
+        self.client.put_object(
+            Bucket=self.settings.processed_bucket,
+            Key=processed_key,
+            Body=json.dumps(data, indent=4)
+        )
+        print(f"Data loading completed. Data saved to: s3://{self.settings.processed_bucket}/{processed_key}")
+        print("Fargate task complete.")
