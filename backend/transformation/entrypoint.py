@@ -1,11 +1,8 @@
-from service import TransformLayer
-from example import data_example
-
+from service import Service
 
 def main():
-    transformer = TransformLayer()
-    transformed_data = transformer.transform(data=data_example)
-    print(transformed_data)
+    service = Service()
+    service.run()
 
 
 if __name__ == '__main__':
