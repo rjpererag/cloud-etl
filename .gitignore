@@ -55,3 +55,7 @@ Thumbs.db
 # If you plan to commit your Dockerfile and docker-compose.yml, remove them from this list.
 # Dockerfile
 # docker-compose.yml
+
+**/**/logs
+**/logs
+/logs
