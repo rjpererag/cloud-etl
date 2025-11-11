@@ -2,6 +2,7 @@ from __future__ import annotations
 import pendulum
 import logging
 import os
+import json
 
 from airflow.sdk import dag, task
 from utils.task_functions import get_pokemon_details
@@ -44,14 +45,14 @@ def load_to_s3(name: str, details: str | None) -> None:
     s3_key = f"{name}_{now_str}.json"
 
     if not details:
-        file_content = '{"status": "failed", ,"timestamp": "2025-10-13-10:03"}'
+        file_content = {"status": "failed","timestamp": now_str}
     else:
-        file_content = '{"status": "ready", "data:"' + details + '"timestamp": "2025-10-13-10:03"}'
+        file_content = {"status": "ready", "data": details, "timestamp": now_str}
 
 
     log.info(f"Writing file {s3_key} to S3 bucket {S3_BUCKET}")
     hook.load_string(
-        string_data=file_content,
+        string_data=json.dumps(file_content),
         key=s3_key,
         bucket_name=S3_BUCKET,
         replace=True,
