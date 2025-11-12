@@ -5,7 +5,7 @@ import os
 import json
 
 from airflow.sdk import dag, task
-from utils.task_functions import get_pokemon_details
+from utils.task_functions import get_pokemon_details, build_object_to_load
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 log = logging.getLogger(__name__)
@@ -41,24 +41,17 @@ def print_pokemon_details(
 def load_to_s3(name: str, details: str | None) -> None:
     hook = S3Hook(aws_conn_id=S3_CONN_ID)
 
-    now_str = pendulum.now("UTC").strftime("%Y%m%d%H%M%S")
-    s3_key = f"{name}_{now_str}.json"
+    object_to_load = build_object_to_load(name=name, details=details)
 
-    if not details:
-        file_content = {"status": "failed","timestamp": now_str}
-    else:
-        file_content = {"status": "ready", "data": details, "timestamp": now_str}
-
-
-    log.info(f"Writing file {s3_key} to S3 bucket {S3_BUCKET}")
+    log.info(f"Writing file {object_to_load['s3_key']} to S3 bucket {S3_BUCKET}")
     hook.load_string(
-        string_data=json.dumps(file_content),
-        key=s3_key,
+        string_data=object_to_load["file_content"],
+        key=object_to_load['s3_key'],
         bucket_name=S3_BUCKET,
         replace=True,
     )
 
-    log.info(f"File creation simulated and complete {file_content}")
+    log.info(f"File creation simulated and complete {object_to_load['file_content']}")
 
 
 @dag(
