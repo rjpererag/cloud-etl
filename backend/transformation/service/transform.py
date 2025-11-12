@@ -93,14 +93,15 @@ class TransformLayer:
         return all(validation)
 
     def transform(self, data: dict) -> dict:
-        validation = self.validate(data=data)
+        validation = self.validate(data=data['data'])
         data["is_valid"] = validation
         if not validation:
-            return data
+            return {**data, "status": "not processed"}
 
         data = {
             **data,
+            "status": "processed",
             "is_valid": validation,
-            **self.augment_data(data=data)
+            "augmentation": self.augment_data(data=data['data'])
         }
         return data

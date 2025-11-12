@@ -15,16 +15,12 @@ class S3Connection:
             response = self.client.get_object(
                 Bucket=self.settings.processed_bucket, Key=self.settings.processed_key
             )
-            print(response)
             s3_data_bytes = response['Body'].read()
-            s3_data_string = s3_data_bytes.decode('utf-8')
+            s3_data = s3_data_bytes.decode('utf-8')
             print("----------------------------------------------------------------------")
-            print(s3_data_string)
+            print(s3_data)
             print("----------------------------------------------------------------------")
-            raw_data = json.loads(s3_data_string)
-            raw_data["data"] = json.loads(raw_data["data"])
-            print(f"Successfully read {len(raw_data)} bytes of raw data.")
-            return raw_data
+            return json.loads(s3_data)
 
         except Exception as e:
             print(f"Failed to read from S3: {e}")
@@ -50,15 +46,11 @@ class S3Connection:
             print(f"Failed to read from S3: {e}")
             exit(1)
 
-    def write_to_processed_bucket(self, data):
-        processed_key = self.settings.raw_bucket.replace(
-            self.settings.raw_bucket, self.settings.processed_bucket).replace(
-            '.json', '.parquet')
-
+    def write_to_processed_bucket(self, data, key: str) -> None:
         self.client.put_object(
             Bucket=self.settings.processed_bucket,
-            Key=processed_key,
+            Key=key,
             Body=json.dumps(data, indent=4)
         )
-        print(f"Data loading completed. Data saved to: s3://{self.settings.processed_bucket}/{processed_key}")
+        print(f"Data loading completed. Data saved to: s3://{self.settings.processed_bucket}/{key}")
         print("Fargate task complete.")
