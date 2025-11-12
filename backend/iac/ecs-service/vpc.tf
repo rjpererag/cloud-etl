@@ -40,19 +40,3 @@ resource "aws_security_group" "ecs_sg" {
     Name = "cloud-etl-pokeapi-ecs-sg-tf"
   }
 }
-
-# Output the networking details
-output "vpc_id" {
-  description = "The ID of the default VPC used by ECS"
-  value       = data.aws_vpc.default.id
-}
-
-output "public_subnet_ids" {
-  description = "A list of public subnet IDs in the default VPC"
-  value       = data.aws_subnets.public.ids
-}
-
-output "ecs_security_group_id" {
-  description = "The ID of the Security Group attached to the ECS Task"
-  value       = aws_security_group.ecs_sg.id
-}
