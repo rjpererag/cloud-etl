@@ -11,6 +11,11 @@ output "raw_bucket_id" {
   value = aws_s3_bucket.raw_bucket.id
 }
 
+output "raw_bucket_arn" {
+  description = "The ARN of the S3 raw data bucket"
+  value = aws_s3_bucket.raw_bucket.arn
+}
+
 output "processed_bucket_name" {
   description = "The Name of the S3 processed data bucket for environment variables."
   value       = aws_s3_bucket.processed_bucket.bucket

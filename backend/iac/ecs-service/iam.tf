@@ -1,6 +1,7 @@
 # Define the trust relationship document used by both roles
 data "aws_iam_policy_document" "ecs_assume_role" {
   statement {
+    actions = ["sts:AssumeRole"]
     effect = "Allow"
     principals {
       type = "Service"
@@ -16,12 +17,12 @@ data "aws_iam_policy_document" "ecs_assume_role" {
 
 resource "aws_iam_role" "ecs_execution_role" {
   name = "cloud-etl-ecs-exec-role-tf"
-  assume_role_policy = "data.aws_iam_policy_document.ecs_assume_role.json"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
 
 # Attach the AWS Managed Policy for execution permissions
 resource "aws_iam_role_policy_attachment" "acs_exec_policy_attach" {
-  role       = "aws_iam_role.ecs_execution.name"
+  role       = aws_iam_role.ecs_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
@@ -44,8 +45,8 @@ data "aws_iam_policy_document" "ecs_s3_policy" {
     ]
     # Reference the RAW BUCKET from the S3 remote state
     resources = [
-    "${data.terrform_remote_state.s3_infrastructure.outputs.raw_bucket_arn}",
-    "${data.terrform_remote_state.s3_infrastructure.outputs.raw_bucket_arn}/*",
+      "${data.terraform_remote_state.s3_infrastructure.outputs.raw_bucket_arn}",
+      "${data.terraform_remote_state.s3_infrastructure.outputs.raw_bucket_arn}/*"
     ]
   }
   statement {
@@ -68,6 +69,6 @@ resource "aws_iam_policy" "ecs_s3_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_s3_policy_attach" {
-  role       = aws_iam_role.ecs_task_role.name
   policy_arn = aws_iam_policy.ecs_s3_policy.arn
+  role       = aws_iam_role.ecs_task_role.name
 }

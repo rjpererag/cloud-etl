@@ -1,6 +1,11 @@
+locals {
+  task_family_name = "cloud-etl-pokeapi-transformation-task-tf"
+  log_group_name   = "/ecs/${local.task_family_name}"
+}
+
 # ECR Repository
 resource "aws_ecr_repository" "transformation_repo" {
-  name = "cloud-etl-pokeapi-transformation-repo.tf"
+  name = "cloud-etl-pokeapi-transformation-repo-tf"
   image_tag_mutability = "MUTABLE"
 }
 
@@ -11,7 +16,7 @@ resource "aws_ecs_cluster" "main" {
 
 # Task Definition
 resource "aws_ecs_task_definition" "transformation_task" {
-  family = "cloud-etl-pokeapi-transformation-task-tf"
+  family = local.task_family_name
   cpu = "256"
   memory = "512"
   network_mode = "awsvpc"
@@ -21,7 +26,7 @@ resource "aws_ecs_task_definition" "transformation_task" {
   execution_role_arn = aws_iam_role.ecs_execution_role.arn
   task_role_arn = aws_iam_role.ecs_task_role.arn
 
-  container_definitions = jsondecode([
+  container_definitions = jsonencode([
     {
       name = "transformation-container",
       image = "${aws_ecr_repository.transformation_repo.repository_url}:latest",
@@ -31,7 +36,7 @@ resource "aws_ecs_task_definition" "transformation_task" {
       logConfiguration = {
         logDriver = "awslogs",
         options = {
-          "awslogs-group" : "/ecs/${aws_ecs_task_definition.transformation_task.family}",
+          "awslogs-group" : aws_cloudwatch_log_group.ecs_log_group.name,
           "awslogs-region" : "eu-central-1",
           "awslogs-stream-prefix" : "ecs"
         }
@@ -47,6 +52,6 @@ resource "aws_ecs_task_definition" "transformation_task" {
 
 # Create the CloudWatch Log Group referenced by the Task Definition
 resource "aws_cloudwatch_log_group" "ecs_log_group" {
-  name              = "/ecs/${aws_ecs_task_definition.transformation_task.family}"
+  name              = local.log_group_name
   retention_in_days = 7 # Adjust as needed
 }
