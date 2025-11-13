@@ -48,6 +48,19 @@ data "aws_iam_policy_document" "lambda_ecs_policy" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "PassECSRoles"
+    effect = "Allow"
+    actions = [
+      "iam:PassRole",
+    ]
+    # The Lambda must be allowed to pass BOTH the Task Role and the Execution Role
+    resources = [
+      data.terraform_remote_state.ecs_infrastructure.outputs.ecs_task_role_arn,      # You need to expose this in ecs-service outputs
+      data.terraform_remote_state.ecs_infrastructure.outputs.ecs_execution_role_arn, # You need to expose this in ecs-service outputs
+    ]
+  }
 }
 
 # Attach the custom policy to the role
@@ -69,7 +82,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attach" {
 # For now, we assume the code is packaged as 'lambda_code.zip' in this directory.
 resource "aws_lambda_function" "ecs_task_launcher" {
   function_name = "${var.project_name}-ecs-launcher-lambda"
-  handler = "${var.lambda_handler_name}.handler"
+  handler = "lambda_handler.lambda_handler"
   runtime = "python3.11"
   role = aws_iam_role.ecs_task_launcher_role.arn
   timeout = 60
@@ -108,15 +121,11 @@ resource "aws_s3_bucket_notification" "s3_trigger" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.ecs_task_launcher.arn
     events = ["s3:ObjectCreated:*"]
-    filter_prefix = "data/"
+    # filter_prefix = "data/"
     filter_suffix = ".json"
   }
   depends_on = [aws_lambda_permission.allow_s3_invoke]
 }
-
-
-
-
 
 
 

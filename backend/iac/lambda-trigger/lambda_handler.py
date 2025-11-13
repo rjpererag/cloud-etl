@@ -7,9 +7,9 @@ import boto3
 # --- Configuration (Pulled from Lambda Environment Variables) ---
 # NOTE: You must have set these Environment Variables in your Lambda function configuration!
 ECS_CLUSTER_NAME = os.environ.get('ECS_CLUSTER_NAME')
-ECS_TASK_FAMILY = os.environ.get('ECS_TASK_FAMILY')
-VPC_SUBNET_IDS = os.environ.get('VPC_SUBNET_IDS').split(',')  # Convert comma-separated string to list
+VPC_SUBNET_IDS = json.loads(os.environ.get('VPC_SUBNET_IDS'))
 ECS_SECURITY_GROUP = os.environ.get('ECS_SECURITY_GROUP')
+ECS_TASK_FAMILY = os.environ.get('ECS_TASK_FAMILY')
 
 # Initialize the ECS client
 ecs_client = boto3.client('ecs')

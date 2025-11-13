@@ -15,5 +15,5 @@ variable "project_name" {
 variable "lambda_handler_name" {
   description = "The name of the Lambda handler file"
   type        = string
-  default     = "lambda_handler.py"
+  default     = "lambda_handler"
 }
